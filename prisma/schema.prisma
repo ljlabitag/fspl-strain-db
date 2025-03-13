@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Personnel {
+  person_id         Int             @id @default(autoincrement())
+  person_name       String          @db.VarChar(255)
+  job_title         String?         @db.VarChar(255)
+  email_address     String          @unique @db.VarChar(255)
+  projects          ProjectMember[]
+  deposited_strains Strain[]        @relation("Depositor")
+
+  @@map("personnel")
+}
+
+model Project {
+  project_id     Int             @id @default(autoincrement())
+  project_title  String          @db.VarChar(255)
+  funding_agency String?         @db.VarChar(255)
+  fund_code      String?         @unique @db.VarChar(50)
+  members        ProjectMember[]
+
+  @@map("project")
+}
+
+model ProjectMember {
+  project_id  Int
+  person_id   Int
+  member_role String?   @db.VarChar(255)
+  person      Personnel @relation(fields: [person_id], references: [person_id], onDelete: Cascade, onUpdate: NoAction)
+  project     Project   @relation(fields: [project_id], references: [project_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([project_id, person_id])
+  @@map("project_member")
+}
+
+model Location {
+  location_id                                     Int        @id @default(autoincrement())
+  parent_loc_id                                   Int?
+  root_loc_id                                     Int?
+  type                                            String     @db.VarChar(50)
+  loc_name                                        String     @db.VarChar(255)
+  location_location_parent_loc_idTolocation       Location?  @relation("location_parent_loc_idTolocation", fields: [parent_loc_id], references: [location_id], onUpdate: NoAction)
+  other_location_location_parent_loc_idTolocation Location[] @relation("location_parent_loc_idTolocation")
+  location_location_root_loc_idTolocation         Location?  @relation("location_root_loc_idTolocation", fields: [root_loc_id], references: [location_id], onUpdate: NoAction)
+  other_location_location_root_loc_idTolocation   Location[] @relation("location_root_loc_idTolocation")
+  strains                                         Strain[]
+
+  @@map("location")
+}
+
+model Strain {
+  strain_id       Int                    @id @default(autoincrement())
+  strain_genus    String                 @db.VarChar(255)
+  strain_species  String                 @db.VarChar(255)
+  status          String?                @db.VarChar(50)
+  form            String?                @db.VarChar(255)
+  strain_source   String?                @db.VarChar(255)
+  loc_id          Int?
+  depositor_id    Int?
+  depositor       Personnel?             @relation("Depositor", fields: [depositor_id], references: [person_id], onUpdate: NoAction)
+  location        Location?              @relation(fields: [loc_id], references: [location_id], onUpdate: NoAction)
+  characteristics StrainCharacteristic[]
+
+  @@map("strain")
+}
+
+model Variable {
+  id              Int                    @id @default(autoincrement())
+  variable_name   String                 @unique @db.VarChar(255)
+  data_type       String?                @db.VarChar(50)
+  characteristics StrainCharacteristic[]
+
+  @@map("variable")
+}
+
+model StrainCharacteristic {
+  id          Int       @id @default(autoincrement())
+  strain_id   Int?
+  variable_id Int?
+  value       String
+  strain      Strain?   @relation(fields: [strain_id], references: [strain_id], onDelete: Cascade, onUpdate: NoAction)
+  variable    Variable? @relation(fields: [variable_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([strain_id, variable_id])
+  @@map("strain_characteristics")
+}
