@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+// Get all personnel
 export async function GET() {
   try {
     const personnel = await prisma.personnel.findMany();
@@ -10,6 +11,7 @@ export async function GET() {
   }
 }
 
+// Add a new personnel
 export async function POST(req) {
   try {
     const body = await req.json();
@@ -24,3 +26,4 @@ export async function POST(req) {
     return NextResponse.json({ error: "Error creating personnel" }, { status: 500 });
   }
 }
+
