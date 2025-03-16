@@ -4,7 +4,15 @@ import prisma from "@/lib/prisma";
 // Get all personnel
 export async function GET() {
   try {
-    const personnel = await prisma.personnel.findMany();
+    const personnel = await prisma.personnel.findMany({
+      include: {
+        projects: {
+          include: {
+            project: true
+          },
+        },
+      }
+    });
     return NextResponse.json(personnel);
   } catch (error) {
     return NextResponse.json({ error: "Error fetching personnel data" }, { status: 500 });
