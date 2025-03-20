@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faList } from "@fortawesome/free-solid-svg-icons";
-import StrainModal from "../../components/strainModal.js";
+import AddStrainModal from "../../components/addStrainModal.js";
+import EditStrainModal from "../../components/editStrainModal.js";
 
 const StrainsPage = () => {
     const [searchTerm, setSearchTerm] = useState("");
@@ -20,6 +21,8 @@ const StrainsPage = () => {
         status: "",
         form: "",
         location: "",
+        location_type: "",
+        depositor: "",
     });
 
     useEffect(() => {
@@ -39,8 +42,15 @@ const StrainsPage = () => {
 
     const handleSearch = async (event) => {
         event.preventDefault();
+
+        let processedSearchTerm = searchTerm;
+        //If the filter is set to accession_number, convert the search term to an integer
+        if (filter === "accession_number") {
+            processedSearchTerm = searchTerm.replace(/\D/g, "");
+        }
+
         try {
-            const response = await axios.get(`/api/strains?searchTerm=${searchTerm}&filter=${filter}`);
+            const response = await axios.get(`/api/strains?searchTerm=${processedSearchTerm}&filter=${filter}`);
             setStrains(response.data);
         } catch (error) {
             console.error("Error searching strains:", error);
@@ -128,7 +138,7 @@ const StrainsPage = () => {
                     <button
                         className="bg-yellow-700 text-white px-4 py-2 rounded-lg hover:bg-yellow-800"
                         onClick={() => {
-                            setSelectedStrain(strains[0]); // Example: Edit the first strain
+                            setSelectedStrain(null); // Reset selected strain
                             setShowEditModal(true);
                         }}
                     >
@@ -137,22 +147,21 @@ const StrainsPage = () => {
                 </div>
             </div>
 
-            <StrainModal
+            <AddStrainModal
               isOpen={showModal}
               onClose={() => setShowModal(false)}
               onSubmit={handleAddStrain}
               strainData={newStrain}
               setStrainData={setNewStrain}
-              title="Add New Strain"
             />
 
-            <StrainModal
+            <EditStrainModal
               isOpen={showEditModal}
               onClose={() => setShowEditModal(false)}
               onSubmit={handleEditStrain}
               strainData={selectedStrain}
               setStrainData={setSelectedStrain}
-              title="Edit Strain Informaton"
+              strains={strains}
             />
 
             <section className="bg-white">
