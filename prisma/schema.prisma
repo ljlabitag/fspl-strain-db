@@ -13,9 +13,22 @@ model Personnel {
   job_title         String?         @db.VarChar(255)
   email_address     String          @unique @db.VarChar(255)
   projects          ProjectMember[] @relation("PersonnelProjects")
-  deposited_strains Strain[]        @relation("Depositor")
+  depositor         Depositor?
 
   @@map("personnel")
+}
+
+
+model Depositor {
+  depositor_id Int        @id @default(autoincrement())
+  person_id    Int?       @unique
+  depositor_name String?  @db.VarChar(255) // Only for external depositors
+  organization  String?   @db.VarChar(255)
+  is_employee   Boolean   @default(false)
+  personnel     Personnel? @relation(fields: [person_id], references: [person_id]) // Nullable for external depositors
+  strains       Strain[]
+  
+  @@map("depositor")
 }
 
 model Project {
@@ -60,11 +73,11 @@ model Strain {
   strain_genus    String                 @db.VarChar(255)
   strain_species  String                 @db.VarChar(255)
   status          String?                @db.VarChar(50)
-  form            String?                @db.VarChar(255)
+  storage_form    String?                @db.VarChar(255)
   strain_source   String?                @db.VarChar(255)
   loc_id          Int?
   depositor_id    Int?
-  depositor       Personnel?             @relation("Depositor", fields: [depositor_id], references: [person_id], onUpdate: NoAction)
+  depositor       Depositor?             @relation(fields: [depositor_id], references: [depositor_id], onUpdate: NoAction) // Now linked to Depositor
   location        Location?              @relation(fields: [loc_id], references: [location_id], onUpdate: NoAction)
   characteristics StrainCharacteristic[]
 

@@ -19,11 +19,13 @@ const StrainsPage = () => {
         strain_genus: "",
         strain_species: "",
         status: "",
-        form: "",
+        storage_form: "",
         location: "",
-        location_type: "",
-        depositor: "",
-    });
+        strain_source: "",
+        depositor_name: "",
+        organization: "",
+        is_employee: false,
+      });
 
     useEffect(() => {
         const fetchStrains = async () => {
@@ -57,22 +59,27 @@ const StrainsPage = () => {
         }
     };
     
-    const handleAddStrain = async () => {
+    const handleAddStrain = async (formData) => {
         try {
-            const response = await axios.post("/api/strains", newStrain);
-            setStrains([...strains, response.data]); // Update list
+            const response = await axios.post("/api/strains", formData);
+    
+            setStrains([...strains, response.data]);
             setShowModal(false);
             setNewStrain({
                 strain_genus: "",
                 strain_species: "",
                 status: "",
-                form: "",
+                storage_form: "",
                 location: "",
+                strain_source: "",
+                depositor_name: "",
+                organization: "",
+                is_employee: false,
             });
         } catch (error) {
             console.error("Error adding strain:", error);
         }
-    };
+    };    
 
     const handleEditStrain = async () => {
         try {
@@ -172,7 +179,7 @@ const StrainsPage = () => {
                             <th className="border border-gray-300 p-2">Genus</th>
                             <th className="border border-gray-300 p-2">Species</th>
                             <th className="border border-gray-300 p-2">Status</th>
-                            <th className="border border-gray-300 p-2">Form</th>
+                            <th className="border border-gray-300 p-2">Storage Form</th>
                             <th className="border border-gray-300 p-2">Location</th>
                         </tr>
                     </thead>
@@ -183,7 +190,7 @@ const StrainsPage = () => {
                                 <td className="border border-gray-300 p-2">{strain.strain_genus}</td>
                                 <td className="border border-gray-300 p-2">{strain.strain_species}</td>
                                 <td className="border border-gray-300 p-2">{strain.status}</td>
-                                <td className="border border-gray-300 p-2">{strain.form}</td>
+                                <td className="border border-gray-300 p-2">{strain.storage_form}</td>
                                 <td className="border border-gray-300 p-2">{strain.location?.loc_name || "N/A"}</td>
                             </tr>
                         ))}
