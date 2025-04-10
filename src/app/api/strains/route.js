@@ -52,8 +52,13 @@ export async function GET(req) {
                         personnel: true, // Include personnel details if the depositor is an employee
                     },
                 },
+                characteristics: {
+                    include: {
+                        variable: true
+                    }
+                },
             },
-            take: 10, // Limit to first 10 results
+            take: 50, // Limit to first 10 results
         });
 
         return NextResponse.json(strains);

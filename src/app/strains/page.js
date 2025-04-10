@@ -31,7 +31,7 @@ const StrainsPage = () => {
         const fetchStrains = async () => {
             try {
                 const response = await axios.get("/api/strains");
-                setStrains(response.data.slice(0, 10)); // Get only the first 10 strains
+                setStrains(response.data.slice(0, 100)); // Get only the first 100 strains
             } catch (error) {
                 console.error("Error fetching strains:", error);
             } finally {
@@ -81,20 +81,23 @@ const StrainsPage = () => {
         }
     };    
 
-    const handleEditStrain = async () => {
+    const handleEditStrain = async (updatedData) => {
         try {
-            const response = await axios.put(`/api/strains/${selectedStrain.strain_id}`, selectedStrain);
+            const response = await axios.put(`/api/strains/${updatedData.strain_id}`, updatedData);
             setStrains(
                 strains.map((strain) =>
-                    strain.strain_id === selectedStrain.strain_id ? response.data : strain
+                    strain.strain_id === updatedData.strain_id ? response.data : strain
                 )
             );
+
             setShowEditModal(false);
             setSelectedStrain(null);
         } catch (error) {
             console.error("Error updating strain:", error);
         }
     };
+    
+    
 
     if (loading) return <p>Loading strains...</p>;
 
@@ -144,10 +147,7 @@ const StrainsPage = () => {
                     </button>
                     <button
                         className="bg-yellow-700 text-white px-4 py-2 rounded-lg hover:bg-yellow-800"
-                        onClick={() => {
-                            setSelectedStrain(null); // Reset selected strain
-                            setShowEditModal(true);
-                        }}
+                        onClick={() => setShowEditModal(true)}
                     >
                         Edit Info
                     </button>
@@ -163,12 +163,12 @@ const StrainsPage = () => {
             />
 
             <EditStrainModal
-              isOpen={showEditModal}
-              onClose={() => setShowEditModal(false)}
-              onSubmit={handleEditStrain}
-              strainData={selectedStrain}
-              setStrainData={setSelectedStrain}
-              strains={strains}
+                isOpen={showEditModal}
+                onClose={() => setShowEditModal(false)}
+                onSubmit={handleEditStrain}
+                strainData={selectedStrain}
+                setStrainData={setSelectedStrain}
+                strains={strains}
             />
 
             <section className="bg-white">
@@ -184,8 +184,8 @@ const StrainsPage = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {strains.map((strain) => (
-                            <tr key={strain.strain_id} className="border border-gray-300">
+                        {strains.map((strain, index) => (
+                            <tr key={`strain-${strain.strain_id}-${index}`} className="border border-gray-300">
                                 <td className="border border-gray-300 p-2">FSPL-{strain.strain_id}</td>
                                 <td className="border border-gray-300 p-2">{strain.strain_genus}</td>
                                 <td className="border border-gray-300 p-2">{strain.strain_species}</td>
