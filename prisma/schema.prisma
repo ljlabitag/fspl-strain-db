@@ -104,3 +104,18 @@ model StrainCharacteristic {
   @@unique([strain_id, variable_id])
   @@map("strain_characteristics")
 }
+
+model Announcement {
+    announcement_id Int      @id @default(autoincrement())
+    title           String   @db.VarChar(255)
+    message         String
+    created_at      DateTime @default(now())
+    @@map("announcement")
+}
+
+model RecentActivity {
+    activity_id Int      @id @default(autoincrement())
+    message     String
+    created_at  DateTime @default(now())
+    @@map("recent_activity")
+}

@@ -88,7 +88,7 @@ const AddStrainModal = ({ isOpen, onClose, onSubmit, strainData, setStrainData }
     };
 
     return (
-        <div className="fixed inset-0 bg-[#A0C878] bg-opacity-10 flex justify-center items-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-10 flex justify-center items-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-lg w-3/5 max-h-[80vh] overflow-y-auto">
                 <h2 className="text-2xl font-bold mb-6">Add New Strain</h2>
                 <form onSubmit={handleSubmit}>
