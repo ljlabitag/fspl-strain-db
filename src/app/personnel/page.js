@@ -1,9 +1,19 @@
 'use client';
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 
 const PersonnelPage = () => {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/api/auth/signin");
+    }
+  }, [status, router]);
+  
   const [personnel, setPersonnel] = useState([]);
   const [loading, setLoading] = useState(true);
 

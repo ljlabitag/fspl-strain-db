@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faList } from "@fortawesome/free-solid-svg-icons";
@@ -8,6 +10,14 @@ import AddStrainModal from "../../components/addStrainModal.js";
 import EditStrainModal from "../../components/editStrainModal.js";
 
 const StrainsPage = () => {
+    const { data: session, status } = useSession();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (status === "unauthenticated") {
+            router.push("/api/auth/signin");
+        }
+    }, [status, router]);
     const [searchTerm, setSearchTerm] = useState("");
     const [filter, setFilter] = useState("all");
     const [strains, setStrains] = useState([]);
@@ -96,8 +106,6 @@ const StrainsPage = () => {
             console.error("Error updating strain:", error);
         }
     };
-    
-    
 
     if (loading) return <p>Loading strains...</p>;
 
