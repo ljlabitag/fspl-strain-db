@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  LAB_HEAD             @map("lab_head")
+  RESEARCH_ASSISTANT   @map("research_assistant")
+}
+
 model Personnel {
   person_id         Int             @id @default(autoincrement())
   person_name       String          @db.VarChar(255)
@@ -14,6 +19,7 @@ model Personnel {
   email_address     String          @unique @db.VarChar(255)
   projects          ProjectMember[] @relation("PersonnelProjects")
   depositor         Depositor?
+  role              Role            @default(RESEARCH_ASSISTANT)
 
   @@map("personnel")
 }
