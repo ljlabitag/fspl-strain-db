@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faList } from "@fortawesome/free-solid-svg-icons";
 import AddStrainModal from "../../components/addStrainModal.js";
 import EditStrainModal from "../../components/editStrainModal.js";
+import LoadingSpinner from "../../components/loadingSpinner.js";
 
 const StrainsPage = () => {
     const { data: session, status } = useSession();
@@ -107,7 +108,8 @@ const StrainsPage = () => {
         }
     };
 
-    if (loading) return <p>Loading strains...</p>;
+    if (loading) return <LoadingSpinner message="Fetching strains..." />;
+
 
     return (
         <main className="flex-grow bg-gray-100 p-6 space-y-6">

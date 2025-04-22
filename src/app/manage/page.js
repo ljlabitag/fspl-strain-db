@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import PersonnelModal from "../../components/personnelModal.js";
+import LoadingSpinner from "../../components/loadingSpinner.js";
 
 export default function ManagePage() {
     const { data: session, status } = useSession();
@@ -46,13 +47,7 @@ export default function ManagePage() {
         setPersonnel([...personnel, newPerson]);
     };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-screen">
-                <p className="text-lg text-gray-700">Loading...</p>
-            </div>
-        );
-    }
+    if (loading) return <LoadingSpinner message="Loading management resources..." />;
 
     return (
         <main className="p-6 space-y-6">
