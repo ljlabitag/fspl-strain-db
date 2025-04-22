@@ -10,8 +10,8 @@ config.autoAddCss = false;
 export const metadata = {
     title: "FSPL Strain Database",
     icons: {
-        icon: "/logo.png",
-        shortcut: "/logo.png",
+        icon: "/straindb_favicon.ico",
+        shortcut: "/straindb_favicon.ico",
     },
     keywords: ["FSPL", "Strain Database", "Laboratory Management"],
     description: "A comprehensive database for managing laboratory strains.",

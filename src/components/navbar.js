@@ -39,7 +39,7 @@ const Navbar = () => {
             <div className="basis-1/2 flex flex-row items-center justify-end space-x-10 relative">
                 {/* Always visible Home link */}
                 <Link href="/" className="hover:underline font-semibold flex items-center space-x-2">
-                    <FontAwesomeIcon icon={faHome} size="lg" />
+                    <FontAwesomeIcon icon={faHome} size="md" />
                     <span>Home</span>
                 </Link>
 
@@ -47,15 +47,15 @@ const Navbar = () => {
                 {session && (
                     <>
                         <Link href="/strains" className="hover:underline font-semibold flex items-center space-x-2">
-                            <FontAwesomeIcon icon={faFlask} size="lg" />
+                            <FontAwesomeIcon icon={faFlask} size="md" />
                             <span>Strains</span>
                         </Link>
                         <Link href="/personnel" className="hover:underline font-semibold flex items-center space-x-2">
-                            <FontAwesomeIcon icon={faUsers} size="lg" />
+                            <FontAwesomeIcon icon={faUsers} size="md" />
                             <span>Personnel</span>
                         </Link>
                         <Link href="/projects" className="hover:underline font-semibold flex items-center space-x-2">
-                            <FontAwesomeIcon icon={faProjectDiagram} size="lg" />
+                            <FontAwesomeIcon icon={faProjectDiagram} size="md" />
                             <span>Projects</span>
                         </Link>
                     </>
@@ -76,7 +76,7 @@ const Navbar = () => {
                         </div>
                     ) : (
                         <div className="flex items-center space-x-2 cursor-pointer" onClick={toggleDropdown}>
-                            <FontAwesomeIcon icon={faRightToBracket} size="lg" />
+                            <FontAwesomeIcon icon={faRightToBracket} size="md" />
                             <span className="font-semibold">Login</span>
                         </div>
                     )}
