@@ -7,6 +7,7 @@ import PersonnelModal from "@components/manage/personnelModal.js";
 import LoadingSpinner from "@components/loadingSpinner.js";
 import ManagePersonnel from "@/components/manage/ManagePersonnel";
 import ManageStrains from "@/components/manage/ManageStrains.js";
+import toast from "react-hot-toast";
 
 export default function ManagePage() {
     const { data: session, status } = useSession();
@@ -36,6 +37,7 @@ export default function ManagePage() {
                 setPersonnel(data);
             } catch (error) {
                 console.error("Error fetching personnel:", error);
+                toast.error("Error fetching personnel. Please try again later.");
             } finally {
                 setLoading(false);
             }

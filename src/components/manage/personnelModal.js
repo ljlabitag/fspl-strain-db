@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 
 export default function PersonnelModal({ isOpen, onClose, onAdd, mode = "add", personToEdit = null }) {
 
@@ -49,9 +50,21 @@ export default function PersonnelModal({ isOpen, onClose, onAdd, mode = "add", p
                 const result = await response.json();
                 onAdd(result);
                 onClose();
+
+                if (mode === "edit") {
+                    toast.success("Personnel updated successfully!");
+                }
+                else {
+                    toast.success("Personnel added successfully!");
+                }
+            } else {
+                const errorData = await response.json();
+                toast.error(`Error: ${errorData.error || "Something went wrong"}`);
             }
+
         } catch (error) {
             console.error("Error adding personnel:", error);
+            toast.error("Error adding personnel. Please try again later.");
         }
     };
 

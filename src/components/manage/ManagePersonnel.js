@@ -1,6 +1,7 @@
 'use client';
 
 import PersonnelModal from "./personnelModal";
+import toast from "react-hot-toast";
 
 const ManagePersonnel = ({
     personnel,
@@ -104,8 +105,14 @@ const ManagePersonnel = ({
                                                         (p) => p.person_id !== person.person_id
                                                     )
                                                 );
+                                                toast.success(
+                                                    `${person.person_name} has been deleted.`
+                                                );
                                             } else {
                                                 console.error("Failed to delete personnel");
+                                                toast.error(
+                                                    "Failed to delete personnel. Please try again."
+                                                );
                                             }
                                         } catch (err) {
                                             console.error("Delete error:", err);

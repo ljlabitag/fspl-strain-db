@@ -9,6 +9,7 @@ import { faList } from "@fortawesome/free-solid-svg-icons";
 import AddStrainModal from "../../components/addStrainModal.js";
 import EditStrainModal from "../../components/editStrainModal.js";
 import LoadingSpinner from "../../components/loadingSpinner.js";
+import toast from "react-hot-toast";
 
 const StrainsPage = () => {
     const { data: session, status } = useSession();
@@ -45,6 +46,7 @@ const StrainsPage = () => {
                 setStrains(response.data.slice(0, 100)); // Get only the first 100 strains
             } catch (error) {
                 console.error("Error fetching strains:", error);
+                toast.error("Error fetching strains. Please try again later.");
             } finally {
                 setLoading(false);
             }
@@ -67,6 +69,7 @@ const StrainsPage = () => {
             setStrains(response.data);
         } catch (error) {
             console.error("Error searching strains:", error);
+            toast.error("Error searching strains. Please try again later.");
         }
     };
     
@@ -87,8 +90,11 @@ const StrainsPage = () => {
                 organization: "",
                 is_employee: false,
             });
+            toast.success("Strain added successfully!");
+
         } catch (error) {
             console.error("Error adding strain:", error);
+            toast.error("Error adding strain. Please try again later.");
         }
     };    
 
@@ -100,11 +106,12 @@ const StrainsPage = () => {
                     strain.strain_id === updatedData.strain_id ? response.data : strain
                 )
             );
-
+            toast.success("Strain updated successfully!");
             setShowEditModal(false);
             setSelectedStrain(null);
         } catch (error) {
             console.error("Error updating strain:", error);
+            toast.error("Error updating strain. Please try again later.");
         }
     };
 
