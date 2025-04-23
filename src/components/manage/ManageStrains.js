@@ -13,6 +13,25 @@ export default function StrainManagement() {
     const [searched, setSearched] = useState(false);
     const [showVariableModal, setShowVariableModal] = useState(false);
     const [selectedVariable, setSelectedVariable] = useState(null);
+    
+    // Pagination state
+    // Strain pagination
+    const [strainCurrentPage, setStrainCurrentPage] = useState(1);
+    const strainPageSize = 5;
+    const strainTotalPages = Math.ceil(filteredStrains.length / strainPageSize);
+    const paginatedStrains = filteredStrains.slice(
+        (strainCurrentPage - 1) * strainPageSize,
+        strainCurrentPage * strainPageSize
+    );
+    // Variable pagination
+    const [varCurrentPage, setVarCurrentPage] = useState(1);
+    const varPageSize = 5;
+    const paginatedVariables = variables.slice(
+        (varCurrentPage - 1) * varPageSize,
+        varCurrentPage * varPageSize
+    );
+    const varTotalPages = Math.ceil(variables.length / varPageSize);
+
 
     useEffect(() => {
         const fetchStrains = async () => {
@@ -133,7 +152,7 @@ export default function StrainManagement() {
 
     return (
         <section className="bg-white rounded-lg shadow p-6 space-y-6">
-            <h2 className="text-xl font-semibold">Strain Management</h2>
+            <h2 className="text-lg font-semibold">Strain Management</h2>
 
             {/* Search Form */}
             <form onSubmit={handleSearch} className="w-full md:w-2/4 flex flex-wrap items-center gap-2">
@@ -178,7 +197,8 @@ export default function StrainManagement() {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredStrains.map((strain) => (
+                        {paginatedStrains.length > 0 ? (
+                            paginatedStrains.map((strain) => (
                             <tr key={strain.strain_id}>
                                 <td className="border p-2">{strain.strain_genus}</td>
                                 <td className="border p-2">{strain.strain_species}</td>
@@ -186,7 +206,7 @@ export default function StrainManagement() {
                                 <td className="border p-2">{strain.status}</td>
                                 <td className="border p-2">
                                     <button
-                                        className="bg-red-600 text-white px-2 py-1 rounded"
+                                        className="bg-red-700 text-white px-2 py-1 rounded"
                                         onClick={async () => {
                                             const confirmDelete = window.confirm(
                                                 `Delete FSPL-${strain.strain_id} ${strain.strain_genus} ${strain.strain_species}?`
@@ -214,9 +234,37 @@ export default function StrainManagement() {
                                     </button>
                                 </td>
                             </tr>
-                        ))}
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="5" className="text-center p-4 text-red-700 ">
+                                    No matching strains found.
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
+            )}
+            {filteredStrains.length > 0 && (
+                <div className="flex justify-center items-center space-x-2 mt-4">
+                <button
+                    onClick={() => setStrainCurrentPage((p) => Math.max(p - 1, 1))}
+                    disabled={strainCurrentPage === 1}
+                    className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+                >
+                    Prev
+                </button>
+                <span className="text-sm text-gray-600">
+                    Page {strainCurrentPage} of {strainTotalPages}
+                </span>
+                <button
+                    onClick={() => setStrainCurrentPage((p) => Math.min(p + 1, strainTotalPages))}
+                    disabled={strainCurrentPage === strainTotalPages}
+                    className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+                >
+                    Next
+                </button>
+                </div>
             )}
 
             {/* Variable Management UI */}
@@ -244,13 +292,13 @@ export default function StrainManagement() {
                         </tr>
                     </thead>
                     <tbody>
-                        {variables.map((v) => (
+                        {paginatedVariables.map((v) => (
                             <tr key={v.id}>
                                 <td className="border p-2">{v.variable_name}</td>
                                 <td className="border p-2">{v.data_type || '-'}</td>
                                 <td className="border p-2 space-x-2">
                                     <button 
-                                        className="bg-yellow-500 text-white px-2 py-1 rounded"
+                                        className="bg-yellow-700 text-white px-2 py-1 rounded"
                                         onClick={() => {
                                             setSelectedVariable(v);
                                             setShowVariableModal(true);
@@ -259,7 +307,7 @@ export default function StrainManagement() {
                                         Edit
                                     </button>
                                     <button 
-                                        className="bg-red-600 text-white px-2 py-1 rounded"
+                                        className="bg-red-700 text-white px-2 py-1 rounded"
                                         onClick={() => handleDeleteVariable(v.id)}
                                     >
                                         Delete
@@ -269,6 +317,26 @@ export default function StrainManagement() {
                         ))}
                     </tbody>
                 </table>
+
+                <div className="flex justify-center items-center space-x-2 mt-4">
+                    <button
+                        onClick={() => setVarCurrentPage((p) => Math.max(p - 1, 1))}
+                        disabled={varCurrentPage === 1}
+                        className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+                    >
+                        Prev
+                    </button>
+                    <span className="text-sm text-gray-600">
+                        Page {varCurrentPage} of {varTotalPages}
+                    </span>
+                    <button
+                        onClick={() => setVarCurrentPage((p) => Math.min(p + 1, varTotalPages))}
+                        disabled={varCurrentPage === varTotalPages}
+                        className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+                    >
+                        Next
+                    </button>
+                </div>
 
                 {/* Modal for Add/Edit Variable */}
                 <VariableModal

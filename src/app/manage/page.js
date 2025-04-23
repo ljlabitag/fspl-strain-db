@@ -3,7 +3,8 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import PersonnelModal from "@components/manage/personnelModal.js";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFlaskVial } from "@fortawesome/free-solid-svg-icons";
 import LoadingSpinner from "@components/loadingSpinner.js";
 import ManagePersonnel from "@/components/manage/ManagePersonnel";
 import ManageStrains from "@/components/manage/ManageStrains.js";
@@ -54,8 +55,14 @@ export default function ManagePage() {
     if (loading) return <LoadingSpinner message="Loading management resources..." />;
 
     return (
-        <main className="p-6 space-y-6">
-            <h1 className="text-2xl font-bold text-green-800">Lab Management</h1>
+        <main className="p-6 space-y-6 bg-gray-100 flex-grow">
+            {/* Manage Page Header */}
+            <section className="bg-[#A0C878] p-3 rounded-lg shadow">
+                <h2 className="text-xl font-bold">
+                    <FontAwesomeIcon icon={faFlaskVial} size="md" className="pr-2" />
+                    Laboratory Management
+                </h2>
+            </section>
 
             {/* Manage Personnel Section */}
             <ManagePersonnel

@@ -14,9 +14,9 @@ const ManagePersonnel = ({
     setEditMode,
 }) => {
     return (
-        <section className="bg-white p-4 rounded-lg shadow">
+        <section className="bg-white p-6 rounded-lg shadow space-y-6">
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold">Personnel</h2>
+                <h2 className="text-lg font-semibold">Personnel Management</h2>
                 <button
                     className="bg-green-700 text-white px-4 py-2 rounded-lg"
                     onClick={() => setShowModal(true)}
@@ -72,7 +72,7 @@ const ManagePersonnel = ({
                             <td className="border p-2 space-x-2">
                                 {/* Edit Personnel button */}
                                 <button
-                                    className="bg-yellow-600 text-white px-2 py-1 rounded"
+                                    className="bg-yellow-700 text-white px-2 py-1 rounded"
                                     onClick={() => {
                                         setSelectedPerson(person);
                                         setEditMode(true);
@@ -84,7 +84,7 @@ const ManagePersonnel = ({
 
                                 {/* Delete Personnel button */}
                                 <button
-                                    className="bg-red-600 text-white px-2 py-1 rounded"
+                                    className="bg-red-700 text-white px-2 py-1 rounded"
                                     onClick={async () => {
                                         const confirmDelete = window.confirm(
                                             `Are you sure you want to delete ${person.person_name}?`
