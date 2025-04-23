@@ -2,7 +2,7 @@
 
 export default function LoadingSpinner({ message = "Loading the lab logs..." }) {
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+        <div className="flex items-center justify-center h-[calc(100vh-8rem)] w-full p-6">
             <div className="bg-white rounded-xl shadow-md p-6 flex flex-col items-center space-y-4 w-full max-w-sm">
                 <div role="status">
                     <svg
