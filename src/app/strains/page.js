@@ -119,7 +119,7 @@ const StrainsPage = () => {
 
 
     return (
-        <main className="flex-grow bg-gray-100 p-6 space-y-6">
+        <main className="flex-grow bg-gray-100 px-6 py-4 space-y-6">
             <section className="bg-[#A0C878] p-3 rounded-lg shadow">
                 <h2 className="text-xl font-bold">
                     <FontAwesomeIcon icon={faList} size="md" className="pr-2" />
@@ -127,7 +127,7 @@ const StrainsPage = () => {
                 </h2>
             </section>
 
-            <div className="flex mt-8 justify-between">
+            <div className="flex mt-6 justify-between">
             <form onSubmit={handleSearch} className="w-2/4 space-x-2 flex justify-start">
                     <select
                         value={filter}

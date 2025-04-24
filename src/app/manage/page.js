@@ -6,8 +6,9 @@ import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFlaskVial } from "@fortawesome/free-solid-svg-icons";
 import LoadingSpinner from "@components/loadingSpinner.js";
-import ManagePersonnel from "@/components/manage/ManagePersonnel";
+import ManagePersonnel from "@/components/manage/ManagePersonnel.js";
 import ManageStrains from "@/components/manage/ManageStrains.js";
+import ManageAdmin from "@/components/manage/ManageAdmin.js";
 import toast from "react-hot-toast";
 
 export default function ManagePage() {
@@ -78,6 +79,9 @@ export default function ManagePage() {
 
             {/* Manage Strains Section */}
             <ManageStrains />
+
+            {/* Manage Admin Section*/}
+            <ManageAdmin />
         </main>
     );
 }
