@@ -25,7 +25,8 @@ export default function RootLayout({ children }) {
                 <Providers>
                 <Navbar />
                 <Toaster position="top-right" />
-                {children}
+                    {children}
+                    <div id="strain-info-export" className="hidden"></div>
                 <Footer />
                 </Providers>
             </body>

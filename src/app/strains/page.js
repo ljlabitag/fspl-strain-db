@@ -6,9 +6,10 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faList } from "@fortawesome/free-solid-svg-icons";
-import AddStrainModal from "../../components/addStrainModal.js";
-import EditStrainModal from "../../components/editStrainModal.js";
-import LoadingSpinner from "../../components/loadingSpinner.js";
+import AddStrainModal from "@components/addStrainModal";
+import EditStrainModal from "@components/editStrainModal";
+import StrainInfoModal from "@/components/strainInfoModal";
+import LoadingSpinner from "@components/loadingSpinner.js";
 import toast from "react-hot-toast";
 
 const StrainsPage = () => {
@@ -28,6 +29,8 @@ const StrainsPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedStrain, setSelectedStrain] = useState(null);
+    const [showInfoModal, setShowInfoModal] = useState(false);
+    const [infoStrain, setInfoStrain] = useState(null);
     const [newStrain, setNewStrain] = useState({
         strain_genus: "",
         strain_species: "",
@@ -129,6 +132,36 @@ const StrainsPage = () => {
         }
     };
 
+    const handleExportMasterlist = () => {
+        const now = new Date();
+        const exportDate = now.toLocaleDateString();
+        const exportTime = now.toLocaleTimeString();
+    
+        let csv = 'Field,Value\n';
+        csv += `Export Date,${exportDate}\n`;
+        csv += `Export Time,${exportTime}\n\n`;
+    
+        csv += 'Accession Number,Scientific Name,Depositor,Status,Storage Form,Location\n';
+    
+        if (strains.length > 0) {
+            strains.forEach((strain) => {
+                csv += `FSPL-${strain.strain_id},"${strain.strain_genus} ${strain.strain_species}",${strain.depositor?.depositor_name || 'N/A'},${strain.status || 'N/A'},${strain.storage_form || 'N/A'},${strain.location?.loc_name || 'N/A'}\n`;
+            });
+        } else {
+            csv += 'No results found\n';
+        }
+    
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+    
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `strain_masterlist_export_${exportDate.replace(/\//g, '-')}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+    
     if (loading) return <LoadingSpinner message="Fetching strains..." />;
 
     return (
@@ -168,7 +201,7 @@ const StrainsPage = () => {
                         Search
                     </button>
                 </form>
-                <div className="w-1/5 space-x-4 flex justify-end pr-4">
+                <div className="w-2/5 space-x-4 flex justify-end pr-4">
                     <button
                         className="bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-800"
                         onClick={() => setShowModal(true)}
@@ -180,6 +213,12 @@ const StrainsPage = () => {
                         onClick={() => setShowEditModal(true)}
                     >
                         Edit Info
+                    </button>
+                    <button
+                        onClick={handleExportMasterlist}
+                        className="bg-indigo-800 text-white px-4 py-2 rounded-lg hover:bg-indigo-900"
+                    >
+                        Export CSV
                     </button>
                 </div>
             </div>
@@ -221,7 +260,15 @@ const StrainsPage = () => {
                                     className="border border-gray-300"
                                 >
                                     <td className="border border-gray-300 p-2">FSPL-{strain.strain_id}</td>
-                                    <td className="border border-gray-300 p-2 italic">{strain.strain_genus} {strain.strain_species}</td>
+                                    <td
+                                        className="border border-gray-300 p-2 italic text-indigo-700 hover:underline cursor-pointer"
+                                        onClick={() => {
+                                            setInfoStrain(strain);
+                                            setShowInfoModal(true);
+                                        }}
+                                    >
+                                        {strain.strain_genus} {strain.strain_species}
+                                    </td>
                                     <td className="border border-gray-300 p-2">{strain.depositor.depositor_name}</td>
                                     <td className="border border-gray-300 p-2">{strain.status}</td>
                                     <td className="border border-gray-300 p-2">{strain.storage_form}</td>
@@ -267,6 +314,12 @@ const StrainsPage = () => {
                     </div>
                 )}
             </section>
+
+            <StrainInfoModal
+                isOpen={showInfoModal}
+                onClose={() => setShowInfoModal(false)}
+                strain={infoStrain}
+            />
         </main>
     );
 };
