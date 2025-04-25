@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from "react";
 import PersonnelModal from "./personnelModal";
 import toast from "react-hot-toast";
 
@@ -13,6 +14,15 @@ const ManagePersonnel = ({
     editMode,
     setEditMode,
 }) => {
+    // Pagination state
+    const [personnelCurrentPage, setPersonnelCurrentPage] = useState(1);
+    const personnelPageSize = 5;
+    const personnelTotalPages = Math.ceil(personnel.length / personnelPageSize);
+    const paginatedPersonnel = personnel.slice(
+        (personnelCurrentPage - 1) * personnelPageSize,
+        personnelCurrentPage * personnelPageSize
+    );
+
     return (
         <section className="bg-white p-6 rounded-lg shadow space-y-6">
             <div className="flex justify-between items-center mb-4">
@@ -63,69 +73,93 @@ const ManagePersonnel = ({
                     </tr>
                 </thead>
                 <tbody>
-                    {personnel.map((person) => (
-                        <tr key={person.person_id}>
-                            <td className="border p-2">{person.person_name}</td>
-                            <td className="border p-2">{person.job_title || "-"}</td>
-                            <td className="border p-2">{person.email_address}</td>
-                            <td className="border p-2">{person.role || "N/A"}</td>
-                            <td className="border p-2 space-x-2">
-                                {/* Edit Personnel button */}
-                                <button
-                                    className="bg-yellow-700 text-white px-2 py-1 rounded"
-                                    onClick={() => {
-                                        setSelectedPerson(person);
-                                        setEditMode(true);
-                                        setShowModal(true);
-                                    }}
-                                >
-                                    Edit
-                                </button>
-
-                                {/* Delete Personnel button */}
-                                <button
-                                    className="bg-red-700 text-white px-2 py-1 rounded"
-                                    onClick={async () => {
-                                        const confirmDelete = window.confirm(
-                                            `Are you sure you want to delete ${person.person_name}?`
-                                        );
-                                        if (!confirmDelete) return;
-
-                                        try {
-                                            const response = await fetch(
-                                                `/api/personnel/${person.person_id}`,
-                                                {
-                                                    method: "DELETE",
-                                                }
+                    {paginatedPersonnel.length > 0 ? (
+                        paginatedPersonnel.map((person) => (
+                            <tr key={person.person_id}>
+                                <td className="border p-2">{person.person_name}</td>
+                                <td className="border p-2">{person.job_title || "-"}</td>
+                                <td className="border p-2">{person.email_address}</td>
+                                <td className="border p-2">{person.role || "N/A"}</td>
+                                <td className="border p-2 space-x-2">
+                                    <button
+                                        className="bg-yellow-700 text-white px-2 py-1 rounded"
+                                        onClick={() => {
+                                            setSelectedPerson(person);
+                                            setEditMode(true);
+                                            setShowModal(true);
+                                        }}
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        className="bg-red-700 text-white px-2 py-1 rounded"
+                                        onClick={async () => {
+                                            const confirmDelete = window.confirm(
+                                                `Are you sure you want to delete ${person.person_name}?`
                                             );
+                                            if (!confirmDelete) return;
 
-                                            if (response.ok) {
-                                                setPersonnel((prev) =>
-                                                    prev.filter(
-                                                        (p) => p.person_id !== person.person_id
-                                                    )
+                                            try {
+                                                const response = await fetch(
+                                                    `/api/personnel/${person.person_id}`,
+                                                    { method: "DELETE" }
                                                 );
-                                                toast.success(
-                                                    `${person.person_name} has been deleted.`
-                                                );
-                                            } else {
-                                                console.error("Failed to delete personnel");
-                                                toast.error(
-                                                    "Failed to delete personnel. Please try again."
-                                                );
+
+                                                if (response.ok) {
+                                                    setPersonnel((prev) =>
+                                                        prev.filter(
+                                                            (p) => p.person_id !== person.person_id
+                                                        )
+                                                    );
+                                                    toast.success(
+                                                        `${person.person_name} has been deleted.`
+                                                    );
+                                                } else {
+                                                    toast.error("Failed to delete personnel.");
+                                                }
+                                            } catch (err) {
+                                                console.error("Delete error:", err);
                                             }
-                                        } catch (err) {
-                                            console.error("Delete error:", err);
-                                        }
-                                    }}
-                                >
-                                    Delete
-                                </button>
+                                        }}
+                                    >
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="5" className="text-center p-4 text-red-700">
+                                No personnel found.
                             </td>
                         </tr>
-                    ))}
+                    )}
                 </tbody>
             </table>
+
+            {personnel.length > 0 && (
+                <div className="flex justify-center items-center space-x-2 mt-4">
+                    <button
+                        onClick={() => setPersonnelCurrentPage((p) => Math.max(p - 1, 1))}
+                        disabled={personnelCurrentPage === 1}
+                        className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+                    >
+                        Prev
+                    </button>
+                    <span className="text-sm text-gray-600">
+                        Page {personnelCurrentPage} of {personnelTotalPages}
+                    </span>
+                    <button
+                        onClick={() =>
+                            setPersonnelCurrentPage((p) => Math.min(p + 1, personnelTotalPages))
+                        }
+                        disabled={personnelCurrentPage === personnelTotalPages}
+                        className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+                    >
+                        Next
+                    </button>
+                </div>
+            )}
         </section>
     );
 };
