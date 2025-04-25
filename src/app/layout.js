@@ -1,6 +1,7 @@
 import Providers from "./providers";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
+import { Toaster } from "react-hot-toast";
 import "./globals.css";
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
@@ -23,7 +24,9 @@ export default function RootLayout({ children }) {
             <body className="min-h-screen flex flex-col">    
                 <Providers>
                 <Navbar />
-                {children}
+                <Toaster position="top-right" />
+                    {children}
+                    <div id="strain-info-export" className="hidden"></div>
                 <Footer />
                 </Providers>
             </body>

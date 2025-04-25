@@ -58,7 +58,6 @@ export async function GET(req) {
                     }
                 },
             },
-            take: 50, // Limit to first 10 results
         });
 
         return NextResponse.json(strains);

@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from "react";
 import axios from "axios";
+import LoadingSpinner from "@/components/loadingSpinner.js";
 
 
 export default function Dashboard() {
@@ -31,8 +32,8 @@ export default function Dashboard() {
     }
     , []);    
 
-    if (loading) return <p>Loading...</p>;
-    
+    if (loading) return <LoadingSpinner message="Loading database resources..." />;
+
     return (
         <main className="bg-gray-100 flex-grow p-6 space-y-6">
                 {/* Welcome Message */}

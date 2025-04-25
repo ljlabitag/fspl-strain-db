@@ -2,14 +2,16 @@
 import Link from "next/link";
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHome, faFlask, faUsers, faProjectDiagram, faRightToBracket } from "@fortawesome/free-solid-svg-icons";
+import { faHome, faFlask, faUsers, faProjectDiagram, faRightToBracket, faSliders } from "@fortawesome/free-solid-svg-icons";
 
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useState } from "react";
 
 const Navbar = () => {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    if (status === "loading") return null;
 
     const toggleDropdown = () => {
         setDropdownOpen((prev) => !prev);
@@ -36,7 +38,7 @@ const Navbar = () => {
             </div>
 
             {/* Links and Dropdown Section */}
-            <div className="basis-1/2 flex flex-row items-center justify-end space-x-10 relative">
+            <div className="basis-1/2 flex flex-row items-center justify-end space-x-6 relative">
                 {/* Always visible Home link */}
                 <Link href="/" className="hover:underline font-semibold flex items-center space-x-2">
                     <FontAwesomeIcon icon={faHome} size="md" />
@@ -59,6 +61,14 @@ const Navbar = () => {
                             <span>Projects</span>
                         </Link>
                     </>
+                )}
+
+                {/* Conditionally render the Manage link for lab heads */}
+                {session?.user?.role === "LAB_HEAD" && (
+                    <Link href="/manage" className="hover:underline font-semibold flex items-center space-x-2">
+                        <FontAwesomeIcon icon={faSliders} size="md" />
+                        <span>Manage</span>
+                    </Link>
                 )}
 
                 {/* Dropdown for Login/Logout */}
@@ -88,7 +98,7 @@ const Navbar = () => {
                                     className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                                     onClick={() => {
                                         setDropdownOpen(false);
-                                        signOut();
+                                        signOut({callbackUrl: "/"});
                                     }}
                                 >
                                     Logout

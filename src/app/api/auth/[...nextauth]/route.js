@@ -24,12 +24,15 @@ const handler = NextAuth({
                 return false; // Reject sign-in
             }
 
+            // Attach personnel data to the user object for later use
+            user.personnel = personnel;
             return true; // Allow sign-in
         },
         async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
                 token.email = user.email;
+                token.role = user.personnel?.role || 'research_assistant';
             }
             return token;
         },
@@ -37,9 +40,10 @@ const handler = NextAuth({
             if (token) {
                 session.user.id = token.id;
                 session.user.email = token.email;
+                session.user.role = token.role || 'research_assistant';
             }
             return session;
-        },
+        }
     },
     secret: process.env.AUTH_SECRET,
 });
