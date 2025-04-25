@@ -17,6 +17,7 @@ export default function ManagePage() {
     const router = useRouter();
 
     useEffect(() => {
+        if (status === "loading") return;
         if (status === "unauthenticated") {
             router.push("/api/auth/signin");
         } else if (session?.user?.role !== "LAB_HEAD") {

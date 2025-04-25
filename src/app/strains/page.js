@@ -17,6 +17,7 @@ const StrainsPage = () => {
     const router = useRouter();
 
     useEffect(() => {
+        if (status === "loading") return;
         if (status === "unauthenticated") {
             router.push("/api/auth/signin");
         }
