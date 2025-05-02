@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { debounce } from "lodash";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faList } from "@fortawesome/free-solid-svg-icons";
 import AddStrainModal from "@components/addStrainModal";
@@ -68,17 +69,10 @@ const StrainsPage = () => {
         fetchStrains();
     }, []);
 
-    const handleSearch = async (event) => {
-        event.preventDefault();
-
-        let processedSearchTerm = searchTerm;
-        if (filter === "accession_number") {
-            processedSearchTerm = searchTerm.replace(/\D/g, "");
-        }
-
+    const debouncedSearch = debounce(async (term, selectedFilter) => {
         try {
             const response = await axios.get(
-                `/api/strains?searchTerm=${processedSearchTerm}&filter=${filter}`
+                `/api/strains?searchTerm=${term}&filter=${selectedFilter}`
             );
             setStrains(response.data);
             setCurrentPage(1);
@@ -86,7 +80,7 @@ const StrainsPage = () => {
             console.error("Error searching strains:", error);
             toast.error("Error searching strains. Please try again later.");
         }
-    };
+    }, 300);
 
     const handleAddStrain = async (formData) => {
         try {
@@ -175,10 +169,14 @@ const StrainsPage = () => {
             </section>
 
             <div className="flex mt-6 justify-between">
-                <form onSubmit={handleSearch} className="w-2/4 space-x-2 flex justify-start">
+                <form className="w-2/4 space-x-2 flex justify-start">
                     <select
                         value={filter}
-                        onChange={(e) => setFilter(e.target.value)}
+                        onChange={(e) => {
+                            const selectedFilter = e.target.value;
+                            setFilter(selectedFilter);
+                            debouncedSearch(searchTerm, selectedFilter);
+                        }}
                         className="border border-gray-500 rounded-lg px-4 py-2"
                     >
                         <option value="all">All</option>
@@ -193,7 +191,11 @@ const StrainsPage = () => {
                         placeholder="Search strains..."
                         className="border border-gray-500 rounded-lg px-4 py-2 w-1/2 ml-2"
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            setSearchTerm(value);
+                            debouncedSearch(value, filter);
+                        }}
                     />
                     <button
                         type="submit"
