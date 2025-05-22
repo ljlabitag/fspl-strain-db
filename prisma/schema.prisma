@@ -7,121 +7,276 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  LAB_HEAD             @map("lab_head")
-  RESEARCH_ASSISTANT   @map("research_assistant")
+model ActivityLog {
+  id                 Int       @id @default(autoincrement())
+  entity             String    @db.VarChar(100)
+  entity_id          Int
+  description        String
+  creator_id         Int?
+  creation_timestamp DateTime? @default(now()) @db.Timestamptz(6)
+  creator            Person?   @relation("ActivityLogCreator", fields: [creator_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("activity_log")
 }
 
-model Personnel {
-  person_id         Int             @id @default(autoincrement())
-  person_name       String          @db.VarChar(255)
-  job_title         String?         @db.VarChar(255)
-  email_address     String          @unique @db.VarChar(255)
-  projects          ProjectMember[] @relation("PersonnelProjects")
-  depositor         Depositor?
-  role              Role            @default(RESEARCH_ASSISTANT)
+model Affiliation {
+  id                     Int       @id @default(autoincrement())
+  org_name               String    @unique @db.VarChar(255)
+  creator_id             Int?
+  creation_timestamp     DateTime? @default(now()) @db.Timestamptz(6)
+  modifier_id            Int?
+  modification_timestamp DateTime? @default(now()) @db.Timestamptz(6)
+  creator                Person?   @relation("AffiliationCreator", fields: [creator_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  modifier               Person?   @relation("AffiliationModifier", fields: [modifier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  persons                Person[]  @relation("PersonAffiliation")
 
-  @@map("personnel")
+  @@map("affiliation")
 }
 
+model Announcement {
+  id                     Int       @id @default(autoincrement())
+  title                  String    @db.VarChar(255)
+  message                String
+  creator_id             Int?
+  creation_timestamp     DateTime? @default(now()) @db.Timestamptz(6)
+  modifier_id            Int?
+  modification_timestamp DateTime? @default(now()) @db.Timestamptz(6)
+  creator                Person?   @relation("AnnouncementCreator", fields: [creator_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  modifier               Person?   @relation("AnnouncementModifier", fields: [modifier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("announcement")
+}
 
 model Depositor {
-  depositor_id Int        @id @default(autoincrement())
-  person_id    Int?       @unique
-  depositor_name String?  @db.VarChar(255) // Only for external depositors
-  organization  String?   @db.VarChar(255)
-  is_employee   Boolean   @default(false)
-  personnel     Personnel? @relation(fields: [person_id], references: [person_id]) // Nullable for external depositors
-  strains       Strain[]
-  
+  id                     Int               @id @default(autoincrement())
+  person_id              Int               @unique
+  creator_id             Int?
+  creation_timestamp     DateTime?         @default(now()) @db.Timestamptz(6)
+  modifier_id            Int?
+  modification_timestamp DateTime?         @default(now()) @db.Timestamptz(6)
+  creator                Person?           @relation("DepositorCreator", fields: [creator_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  modifier               Person?           @relation("DepositorModifier", fields: [modifier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  person                 Person            @relation("DepositorPerson", fields: [person_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  strain_accession       StrainAccession[]
+  strain_copy            StrainCopy[]
+
   @@map("depositor")
 }
 
+model Genus {
+  id                     Int       @id @default(autoincrement())
+  genus_name             String    @unique @db.VarChar(255)
+  creator_id             Int?
+  creation_timestamp     DateTime? @default(now()) @db.Timestamptz(6)
+  modifier_id            Int?
+  modification_timestamp DateTime? @default(now()) @db.Timestamptz(6)
+  creator                Person?   @relation("GenusCreator", fields: [creator_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  modifier               Person?   @relation("GenusModifier", fields: [modifier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  species                Species[]
+  strain                 Strain[]
+
+  @@map("genus")
+}
+
+model Location {
+  id                     Int          @id @default(autoincrement())
+  location_name          String       @db.VarChar(255)
+  creator_id             Int?
+  creation_timestamp     DateTime?    @default(now()) @db.Timestamptz(6)
+  modifier_id            Int?
+  modification_timestamp DateTime?    @default(now()) @db.Timestamptz(6)
+  creator                Person?      @relation("LocationCreator", fields: [creator_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  modifier               Person?      @relation("LocationModifier", fields: [modifier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  strain_copy            StrainCopy[]
+
+  @@map("location")
+}
+
+model Person {
+  id                       Int                    @id @default(autoincrement())
+  person_name              String                 @db.VarChar(255)
+  email                    String                 @unique @db.VarChar(255)
+  role                     String                 @db.VarChar(100)
+  position_title           String?                @db.VarChar(255)
+  affiliation_id           Int?
+  creator_id               Int?
+  creation_timestamp       DateTime?              @default(now()) @db.Timestamptz(6)
+  modifier_id              Int?
+  modification_timestamp   DateTime?              @default(now()) @db.Timestamptz(6)
+  createdActivityLogs      ActivityLog[]          @relation("ActivityLogCreator")
+  affiliationsCreated      Affiliation[]          @relation("AffiliationCreator")
+  affiliationsModified     Affiliation[]          @relation("AffiliationModifier")
+  announcementsCreated     Announcement[]         @relation("AnnouncementCreator")
+  announcementsModified    Announcement[]         @relation("AnnouncementModifier")
+  depositorsCreated        Depositor[]            @relation("DepositorCreator")
+  depositorsModified       Depositor[]            @relation("DepositorModifier")
+  depositor                Depositor?             @relation("DepositorPerson")
+  genusCreated             Genus[]                @relation("GenusCreator")
+  genusModified            Genus[]                @relation("GenusModifier")
+  locationsCreated         Location[]             @relation("LocationCreator")
+  locationsModified        Location[]             @relation("LocationModifier")
+  affiliation              Affiliation?           @relation("PersonAffiliation", fields: [affiliation_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_affiliation")
+  creator                  Person?                @relation("PersonCreator", fields: [creator_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_creator_id")
+  createdPeople            Person[]               @relation("PersonCreator")
+  modifier                 Person?                @relation("PersonModifier", fields: [modifier_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_modifier_id")
+  modifiedPeople           Person[]               @relation("PersonModifier")
+  projectsCreated          Project[]              @relation("ProjectCreator")
+  projectsModified         Project[]              @relation("ProjectModifier")
+  projectMembersCreated    ProjectMember[]        @relation("ProjectMemberCreator")
+  projectMembersModified   ProjectMember[]        @relation("ProjectMemberModifier")
+  projectMembers           ProjectMember[]        @relation("ProjectMemberPerson")
+  speciesCreated           Species[]              @relation("SpeciesCreator")
+  speciesModified          Species[]              @relation("SpeciesModifier")
+  strainsCreated           Strain[]               @relation("StrainCreator")
+  strainsModified          Strain[]               @relation("StrainModifier")
+  strainAccessionsCreated  StrainAccession[]      @relation("StrainAccessionCreator")
+  strainAccessionsModified StrainAccession[]      @relation("StrainAccessionModifier")
+  strainCharsCreated       StrainCharacteristic[] @relation("StrainCharCreator")
+  strainCharsModified      StrainCharacteristic[] @relation("StrainCharModifier")
+  strainCopiesCreated      StrainCopy[]           @relation("StrainCopyCreator")
+  strainCopiesModified     StrainCopy[]           @relation("StrainCopyModifier")
+  variablesCreated         Variable[]             @relation("VariableCreator")
+  variablesModified        Variable[]             @relation("VariableModifier")
+
+  @@map("person")
+}
+
 model Project {
-  project_id     Int             @id @default(autoincrement())
-  project_title  String          @db.VarChar(255)
-  funding_agency String?         @db.VarChar(255)
-  fund_code      String?         @unique @db.VarChar(50)
-  members        ProjectMember[] @relation("ProjectMembers")
+  id                     Int             @id @default(autoincrement())
+  title                  String          @db.VarChar(255)
+  funding_agency         String?         @db.VarChar(255)
+  fund_code              String?         @unique @db.VarChar(100)
+  creator_id             Int?
+  creation_timestamp     DateTime?       @default(now()) @db.Timestamptz(6)
+  modifier_id            Int?
+  modification_timestamp DateTime?       @default(now()) @db.Timestamptz(6)
+  creator                Person?         @relation("ProjectCreator", fields: [creator_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  modifier               Person?         @relation("ProjectModifier", fields: [modifier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  members                ProjectMember[]
 
   @@map("project")
 }
 
 model ProjectMember {
-  project_member_id Int     @id @default(autoincrement())
-  project_id        Int
-  person_id         Int
-  member_role       String
-  project           Project   @relation("ProjectMembers", fields: [project_id], references: [project_id])
-  personnel         Personnel @relation("PersonnelProjects", fields: [person_id], references: [person_id])
+  id                     Int       @id @default(autoincrement())
+  project_id             Int
+  person_id              Int
+  project_role           String?   @db.VarChar(100)
+  creator_id             Int?
+  creation_timestamp     DateTime? @default(now()) @db.Timestamptz(6)
+  modifier_id            Int?
+  modification_timestamp DateTime? @default(now()) @db.Timestamptz(6)
+  creator                Person?   @relation("ProjectMemberCreator", fields: [creator_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  modifier               Person?   @relation("ProjectMemberModifier", fields: [modifier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  person                 Person    @relation("ProjectMemberPerson", fields: [person_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  project                Project   @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([project_id, person_id])
   @@map("project_member")
 }
 
-model Location {
-  location_id                                     Int        @id @default(autoincrement())
-  parent_loc_id                                   Int?
-  root_loc_id                                     Int?
-  type                                            String     @db.VarChar(50)
-  loc_name                                        String     @db.VarChar(255)
-  location_location_parent_loc_idTolocation       Location?  @relation("location_parent_loc_idTolocation", fields: [parent_loc_id], references: [location_id], onUpdate: NoAction)
-  other_location_location_parent_loc_idTolocation Location[] @relation("location_parent_loc_idTolocation")
-  location_location_root_loc_idTolocation         Location?  @relation("location_root_loc_idTolocation", fields: [root_loc_id], references: [location_id], onUpdate: NoAction)
-  other_location_location_root_loc_idTolocation   Location[] @relation("location_root_loc_idTolocation")
-  strains                                         Strain[]
+model Species {
+  id                     Int       @id @default(autoincrement())
+  species_name           String    @unique @db.VarChar(255)
+  genus_id               Int
+  creator_id             Int?
+  creation_timestamp     DateTime? @default(now()) @db.Timestamptz(6)
+  modifier_id            Int?
+  modification_timestamp DateTime? @default(now()) @db.Timestamptz(6)
+  creator                Person?   @relation("SpeciesCreator", fields: [creator_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  genus                  Genus     @relation(fields: [genus_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  modifier               Person?   @relation("SpeciesModifier", fields: [modifier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  strains                Strain[]
 
-  @@map("location")
+  @@map("species")
 }
 
 model Strain {
-  strain_id       Int                    @id @default(autoincrement())
-  strain_genus    String                 @db.VarChar(255)
-  strain_species  String                 @db.VarChar(255)
-  status          String?                @db.VarChar(50)
-  storage_form    String?                @db.VarChar(255)
-  strain_source   String?                @db.VarChar(255)
-  loc_id          Int?
-  depositor_id    Int?
-  depositor       Depositor?             @relation(fields: [depositor_id], references: [depositor_id], onUpdate: NoAction) // Now linked to Depositor
-  location        Location?              @relation(fields: [loc_id], references: [location_id], onUpdate: NoAction)
-  characteristics StrainCharacteristic[]
+  id                     Int               @id @default(autoincrement())
+  genus_id               Int
+  species_id             Int
+  creator_id             Int?
+  creation_timestamp     DateTime?         @default(now()) @db.Timestamptz(6)
+  modifier_id            Int?
+  modification_timestamp DateTime?         @default(now()) @db.Timestamptz(6)
+  creator                Person?           @relation("StrainCreator", fields: [creator_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  genus                  Genus             @relation(fields: [genus_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  modifier               Person?           @relation("StrainModifier", fields: [modifier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  species                Species           @relation(fields: [species_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  accessions             StrainAccession[]
 
   @@map("strain")
 }
 
-model Variable {
-  id              Int                    @id @default(autoincrement())
-  variable_name   String                 @unique @db.VarChar(255)
-  data_type       String?                @db.VarChar(50)
-  characteristics StrainCharacteristic[]
+model StrainAccession {
+  accession_number          String                 @id @db.VarChar(50)
+  strain_id                 Int
+  external_accession_number String?                @db.VarChar(100)
+  depositor_id              Int?
+  description               String?
+  creator_id                Int?
+  creation_timestamp        DateTime?              @default(now()) @db.Timestamptz(6)
+  modifier_id               Int?
+  modification_timestamp    DateTime?              @default(now()) @db.Timestamptz(6)
+  creator                   Person?                @relation("StrainAccessionCreator", fields: [creator_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  depositor                 Depositor?             @relation(fields: [depositor_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  modifier                  Person?                @relation("StrainAccessionModifier", fields: [modifier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  strain                    Strain                 @relation(fields: [strain_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  characteristics           StrainCharacteristic[]
+  copies                    StrainCopy[]
 
-  @@map("variable")
+  @@map("strain_accession")
 }
 
 model StrainCharacteristic {
-  id          Int       @id @default(autoincrement())
-  strain_id   Int?
-  variable_id Int?
-  value       String
-  strain      Strain?   @relation(fields: [strain_id], references: [strain_id], onDelete: Cascade, onUpdate: NoAction)
-  variable    Variable? @relation(fields: [variable_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id                     Int             @id @default(autoincrement())
+  accession_number       String          @db.VarChar(50)
+  variable_id            Int
+  value                  String
+  creator_id             Int?
+  creation_timestamp     DateTime?       @default(now()) @db.Timestamptz(6)
+  modifier_id            Int?
+  modification_timestamp DateTime?       @default(now()) @db.Timestamptz(6)
+  strain                 StrainAccession @relation(fields: [accession_number], references: [accession_number], onDelete: NoAction, onUpdate: NoAction)
+  creator                Person?         @relation("StrainCharCreator", fields: [creator_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  modifier               Person?         @relation("StrainCharModifier", fields: [modifier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  variable               Variable        @relation(fields: [variable_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@unique([strain_id, variable_id])
-  @@map("strain_characteristics")
+  @@unique([accession_number, variable_id])
+  @@map("strain_characteristic")
 }
 
-model Announcement {
-    announcement_id Int      @id @default(autoincrement())
-    title           String   @db.VarChar(255)
-    message         String
-    created_at      DateTime @default(now())
-    @@map("announcement")
+model StrainCopy {
+  id                     Int             @id @default(autoincrement())
+  accession_number       String          @db.VarChar(50)
+  depositor_id           Int?
+  location_id            Int?
+  strain_form            String?         @db.VarChar(100)
+  quantity               Int?            @default(1)
+  creator_id             Int?
+  creation_timestamp     DateTime?       @default(now()) @db.Timestamptz(6)
+  modifier_id            Int?
+  modification_timestamp DateTime?       @default(now()) @db.Timestamptz(6)
+  strain                 StrainAccession @relation(fields: [accession_number], references: [accession_number], onDelete: NoAction, onUpdate: NoAction)
+  creator                Person?         @relation("StrainCopyCreator", fields: [creator_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  depositor              Depositor?      @relation(fields: [depositor_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  location               Location?       @relation(fields: [location_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  modifier               Person?         @relation("StrainCopyModifier", fields: [modifier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("strain_copy")
 }
 
-model RecentActivity {
-    activity_id Int      @id @default(autoincrement())
-    message     String
-    created_at  DateTime @default(now())
-    @@map("recent_activity")
+model Variable {
+  id                     Int                    @id @default(autoincrement())
+  var_name               String                 @unique @db.VarChar(100)
+  data_type              String                 @db.VarChar(50)
+  creator_id             Int?
+  creation_timestamp     DateTime?              @default(now()) @db.Timestamptz(6)
+  modifier_id            Int?
+  modification_timestamp DateTime?              @default(now()) @db.Timestamptz(6)
+  strain_characteristics StrainCharacteristic[]
+  creator                Person?                @relation("VariableCreator", fields: [creator_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  modifier               Person?                @relation("VariableModifier", fields: [modifier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("variable")
 }
