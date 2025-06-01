@@ -6,7 +6,7 @@ export async function GET() {
     try {
         const depositors = await prisma.depositor.findMany({
             include: {
-                personnel: true
+                person: true
             }
         });
 

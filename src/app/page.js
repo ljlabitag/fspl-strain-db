@@ -11,7 +11,7 @@ export default function Dashboard() {
         storageLocations: 0,
         numberDepositors: 0,
         announcements: [],
-        recentActivity: []
+        activityLog: []
     });
 
     const [loading, setLoading] = useState(true);
@@ -82,9 +82,9 @@ export default function Dashboard() {
                 <section className="bg-white p-4 rounded-lg shadow">
                         <h3 className="text-lg font-semibold text-gray-800">Recent Activity</h3>
                         <ul className="list-disc pl-5 text-gray-700">
-                            {summary.recentActivity.map((activity, index) => (
+                            {summary.activityLog.map((activity, index) => (
                                 <li key={`activity-${activity.activity_id}-${index}`}>
-                                    {activity.message}
+                                    {activity.description}
                                 </li>
                             ))}
                         </ul>
