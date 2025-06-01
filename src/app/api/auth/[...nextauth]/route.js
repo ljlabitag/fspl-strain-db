@@ -15,24 +15,24 @@ const handler = NextAuth({
         async signIn({ user }) {
             // Check if the user's email exists in the database
             const email = user.email;
-            const personnel = await prisma.personnel.findUnique({
-                where: { email_address: email },
+            const person = await prisma.person.findUnique({
+                where: { email: email },
             });
 
-            if (!personnel) {
+            if (!person) {
                 console.warn(`Unauthorized login attempt by ${email}`);
                 return false; // Reject sign-in
             }
 
-            // Attach personnel data to the user object for later use
-            user.personnel = personnel;
+            // Attach person data to the user object for later use
+            user.person = person;
             return true; // Allow sign-in
         },
         async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
                 token.email = user.email;
-                token.role = user.personnel?.role || 'research_assistant';
+                token.role = user.person?.role || 'research_assistant';
             }
             return token;
         },
