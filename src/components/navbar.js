@@ -52,9 +52,9 @@ const Navbar = () => {
                             <FontAwesomeIcon icon={faFlask} size="lg" />
                             <span>Strains</span>
                         </Link>
-                        <Link href="/personnel" className="hover:underline font-semibold flex items-center space-x-2">
+                        <Link href="/persons" className="hover:underline font-semibold flex items-center space-x-2">
                             <FontAwesomeIcon icon={faUsers} size="lg" />
-                            <span>Personnel</span>
+                            <span>Persons</span>
                         </Link>
                         <Link href="/projects" className="hover:underline font-semibold flex items-center space-x-2">
                             <FontAwesomeIcon icon={faProjectDiagram} size="lg" />
